@@ -17,7 +17,8 @@ import matplotlib
 
 # Codebook
 # http://www.cdc.gov/nchs/nsfg/nsfg_cycle6.htm
-# https://ftp.cdc.gov/pub/Health_Statistics/NCHS/Dataset_Documentation/NSFG/Cycle6Codebook-Pregnancy.pdf - Codebook
+# https://ftp.cdc.gov/pub/Health_Statistics/NCHS/Dataset_Documentation/NSFG/Cycle6Codebook-Pregnancy.pdf - Pregnancy Codebook
+# https://ftp.cdc.gov/pub/Health_Statistics/NCHS/Dataset_Documentation/NSFG/Cycle6Codebook-Female.pdf - Respondent Codebook
 # https://www.cdc.gov/nchs/data/nsfg/App2_RecodeSpecs.pdf - Recode Specs
 
 
@@ -249,10 +250,28 @@ print(df.outcome[indices].values)
 
 # region 1.9  Exercises
 # region Exercise 1
-
+#   file - chap01ex.ipynb
 
 
 # endregion Exercise 1
+
+# region Exercise 2
+#   chap01ex.py
+
+
+# endregion Exercise 2
+
+# region Exercise 3
+# Governments are good sources because data from public research is often freely available.
+# Good places to start include
+#   http://www.data.gov/, and
+#   http://www.science.gov/, and
+#   in the United Kingdom, http://data.gov.uk/.
+#   General Social Survey at http://www3.norc.org/gss+website/, and
+#   the European Social Survey at http://www.europeansocialsurvey.org/.
+
+
+# endregion Exercise 3
 
 
 # endregion 1.9  Exercises
@@ -290,4 +309,11 @@ print(df.outcome[indices].values)
 
 # endregion Chapter 1  Exploratory data analysis
 
+# region Chapter 2  Distributions
+# region 2.1  Histograms
 
+
+# endregion 2.1  Histograms
+
+
+# endregion Chapter 2  Distributions
