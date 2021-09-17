@@ -1,11 +1,15 @@
 # Source
 # https://github.com/github/gitignore/blob/master/Python.gitignore
 
+# files
+Test.py
+
 # Zip file
 *.zip
 
-# code folder
+# folder
 code - Allen Downey/
+.idea
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
