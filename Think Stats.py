@@ -250,18 +250,67 @@ print(df.outcome[indices].values)
 
 # region 1.9  Exercises
 # region Exercise 1
-#   file - chap01ex.ipynb
+# In the repository you downloaded, you should find a file named chap01ex.ipynb, which is an IPython notebook.
+# You can launch IPython notebook from the command line like this:
+$ ipython notebook &
+
+# If IPython is installed, it should launch a server that runs in the background and open a browser to view the notebook.
+# If you are not familiar with IPython, I suggest you start at http://ipython.org/ipython-doc/stable/notebook/notebook.html.
+
+# To launch the IPython notebook server, run:
+$ ipython notebook &
+
+# It should open a new browser window, but if not,
+#   the startup message provides a URL you can load in a browser, usually http://localhost:8888.
+# The new window should list the notebooks in the repository.
+
+# Open chap01ex.ipynb. Some cells are already filled in, and you should execute them.
+# Other cells give you instructions for exercises you should try.
+
+# A solution to this exercise is in chap01soln.ipynb
+
+# ============================================================================================================
+
+#   File - chap01ex.ipynb
 
 
 # endregion Exercise 1
 
 # region Exercise 2
-#   chap01ex.py
+# In the repository you downloaded, you should find a file named chap01ex.py;
+# using this file as a starting place, write a function that reads the respondent file, 2002FemResp.dat.gz.
+
+# The variable pregnum is a recode that indicates how many times each respondent has been pregnant.
+# Print the value counts for this variable and compare them to the published results in the NSFG codebook.
+
+# You can also cross-validate the respondent and pregnancy files by
+#   comparing pregnum for each respondent with the number of records in the pregnancy file.
+
+# You can use nsfg.MakePregMap to make a dictionary
+#   that maps from each caseid to a list of indices into the pregnancy DataFrame.
+
+# A solution to this exercise is in chap01soln.py
+
+# ============================================================================================================
+
+#   File - chap01ex.py
 
 
 # endregion Exercise 2
 
 # region Exercise 3
+# The best way to learn about statistics is to work on a project you are interested in.
+# Is there a question like, “Do first babies arrive late,” that you want to investigate?
+
+# Think about questions
+#   you find personally interesting, or
+#   items of conventional wisdom, or
+#   controversial topics, or
+#   questions that have political consequences,
+#  and see if you can formulate a question that lends itself to statistical inquiry.
+
+# Look for data to help you address the question.
+
 # Governments are good sources because data from public research is often freely available.
 # Good places to start include
 #   http://www.data.gov/, and
@@ -269,6 +318,17 @@ print(df.outcome[indices].values)
 #   in the United Kingdom, http://data.gov.uk/.
 #   General Social Survey at http://www3.norc.org/gss+website/, and
 #   the European Social Survey at http://www.europeansocialsurvey.org/.
+
+# If it seems like someone has already answered your question, look closely to see whether the answer is justified.
+# There might be flaws in the data or the analysis that make the conclusion unreliable.
+# In that case you could perform a different analysis of the same data, or look for a better source of data.
+
+# If you find a published paper that addresses your question, you should be able to get the raw data.
+# Many authors make their data available on the web,
+#   but for sensitive data you might have to write to the authors,
+#   provide information about how you plan to use the data,
+#   or agree to certain terms of use.
+# Be persistent!
 
 
 # endregion Exercise 3
@@ -611,6 +671,18 @@ def CohenEffectSize(group1, group2):
 
 # region 2.11  Exercises
 # region Exercise 1
+# Based on the results in this chapter,
+#   suppose you were asked to summarize what you learned about whether first babies arrive late.
+
+# Which summary statistics would you use if you wanted to get a story on the evening news?
+# Which ones would you use if you wanted to reassure an anxious patient?
+
+# Finally, imagine that you are Cecil Adams, author of The Straight Dope (http://straightdope.com),
+# and your job is to answer the question, “Do first babies arrive late?”
+# Write a paragraph that uses the results in this chapter to answer the question clearly, precisely, and honestly.
+
+# ============================================================================================================
+
 # Evening news - summary statistics (mean, std)
 # reassure an anxious patient - Effect size (Cohen's d)
 
@@ -629,15 +701,45 @@ def CohenEffectSize(group1, group2):
 # endregion Exercise 1
 
 # region Exercise 2
-# file - chap02soln.ipynb
+# In the repository you downloaded, you should find a file named chap02ex.ipynb; open it.
+# Some cells are already filled in, and you should execute them.
+# Other cells give you instructions for exercises.
+# Follow the instructions and fill in the answers.
+
+# A solution to this exercise is in chap02soln.ipynb
+
+# ============================================================================================================
+
+#   File - chap02soln.ipynb
 
 # endregion Exercise 2
 
+# In the repository you downloaded, you should find a file named chap02ex.py;
+# you can use this file as a starting place for the following exercises. My solution is in chap02soln.py.
+
 # region Exercise 3
-# chap02ex.py
+# The mode of a distribution is the most frequent value; see http://wikipedia.org/wiki/Mode_(statistics).
+# Write a function called Mode that takes a Hist and returns the most frequent value.
+
+# As a more challenging exercise,
+#   write a function called AllModes that returns a list of value-frequency pairs in descending order of frequency.
+
+# ============================================================================================================
+
+#   File - chap02ex.py
 
 # endregion Exercise 3
 
+# region Exercise 4
+# Using the variable totalwgt_lb, investigate whether first babies are lighter or heavier than others.
+# Compute Cohen’s d to quantify the difference between the groups.
+# How does it compare to the difference in pregnancy length?
+
+# ============================================================================================================
+
+#   File - chap02ex.py
+
+# endregion Exercise 4
 
 # endregion 2.11  Exercises
 
@@ -679,6 +781,360 @@ def CohenEffectSize(group1, group2):
 # endregion Chapter 2  Distributions
 
 # region Chapter 3  Probability mass functions
+# The code for this chapter is in probability.py.
+# For information about downloading and working with this code, see Section 0.2.
 
+# region 3.1  Pmfs
+# Given a Hist, we can make a dictionary that maps from each value to its probability:
+n = hist.Total()
+d = {}
+for x, freq in hist.Items():
+    d[x] = freq / n
+
+# Or we can use the Pmf class provided by thinkstats2.
+# Like Hist, the Pmf constructor can take a list, pandas Series, dictionary, Hist, or another Pmf object.
+# Here’s an example with a simple list:
+import thinkstats2
+pmf = thinkstats2.Pmf([1,2,2,3,5])
+
+# The Pmf is normalized so total probability is 1.
+
+# Pmf and Hist objects are similar in many ways; in fact, they inherit many of their methods from a common parent class.
+# example,
+#   the methods Values and Items work the same way for both.
+#   The biggest difference is that
+#       a Hist maps from values to integer counters;
+#       a Pmf maps from values to floating-point probabilities.
+
+# To look up the probability associated with a value, use Prob:
+pmf.Prob(2)
+
+# The bracket operator is equivalent:
+pmf[2]
+
+# You can modify an existing Pmf by incrementing the probability associated with a value:
+pmf.Incr(2, 0.2)
+pmf.Prob(2)
+
+# Or you can multiply a probability by a factor:
+pmf.Mult(2, 0.2)
+pmf.Prob(2)
+
+# If you modify a Pmf, the result may not be normalized;
+#   that is, the probabilities may no longer add up to 1.
+# To check, you can call Total, which returns the sum of the probabilities:
+pmf.Total()
+
+# To renormalize, call Normalize:
+pmf.Normalize()
+pmf.Total()
+
+# Pmf objects provide a Copy method so you can make and modify a copy without affecting the original.
+
+# My notation in this section might seem inconsistent, but there is a system:
+#   I use Pmf for the name of the class,
+#   pmf for an instance of the class, and
+#   PMF for the mathematical concept of a probability mass function.
+
+
+# endregion 3.1  Pmfs
+
+# region 3.2  Plotting PMFs
+# thinkplot provides two ways to plot Pmfs:
+#     To plot a Pmf as a bar graph, you can use thinkplot.Hist.
+#       Bar graphs are most useful if the number of values in the Pmf is small.
+#     To plot a Pmf as a step function, you can use thinkplot.Pmf.
+#       This option is most useful if there are a large number of values and the Pmf is smooth.
+#       This function also works with Hist objects.
+
+# In addition,
+#   pyplot provides a function called hist that takes a sequence of values, computes a histogram, and plots it.
+# Since I use Hist objects, I usually don’t use pyplot.hist.
+live, firsts, others = first.MakeFrames()
+
+first_pmf = thinkstats2.Pmf(firsts.prglngth)
+other_pmf = thinkstats2.Pmf(others.prglngth)
+
+width = 0.45
+
+
+thinkplot.PrePlot(2, cols=2)
+thinkplot.Hist(first_pmf, align="right", width=width)
+thinkplot.Hist(other_pmf, align="left", width=width)
+thinkplot.Config(xlabel="weeks", ylabel="probability", axis=[27, 46, 0, 0.6])
+
+thinkplot.PrePlot(2)
+thinkplot.SubPlot(2)
+thinkplot.Pmfs([first_pmf, other_pmf])
+thinkplot.Config(xlabel="weeks", axis=[27, 46, 0, 0.6])
+
+thinkplot.Show()
+
+
+# PrePlot takes optional parameters rows and cols to make a grid of figures, in this case one row of two figures.
+# The first figure (on the left) displays the Pmfs using thinkplot.Hist, as we have seen before.
+
+# The second call to PrePlot resets the color generator.
+# Then SubPlot switches to the second figure (on the right) and displays the Pmfs using thinkplot.Pmfs.
+# I used the axis option to ensure that the two figures are on the same axes,
+#   which is generally a good idea if you intend to compare two figures.
+
+
+# endregion 3.2  Plotting PMFs
+
+# region 3.3  Other visualizations
+# Histograms and PMFs are useful while you are exploring data and trying to identify patterns and relationships.
+# Once you have an idea what is going on,
+#   a good next step is to design a visualization that makes the patterns you have identified as clear as possible.
+
+# In the NSFG data, the biggest differences in the distributions are near the mode.
+# So it makes sense to zoom in on that part of the graph, and to transform the data to emphasize differences:
+live, firsts, others = first.MakeFrames()
+
+first_pmf = thinkstats2.Pmf(firsts.prglngth)
+other_pmf = thinkstats2.Pmf(others.prglngth)
+
+weeks = range(36, 45)
+diffs = []
+for week in weeks:
+    p1 = first_pmf.Prob(week)
+    p2 = other_pmf.Prob(week)
+    diff = 100 * (p1 - p2)
+    diffs.append(diff)
+
+thinkplot.Bar(weeks, diffs)
+
+thinkplot.Show()
+
+# In this code,
+#   weeks is the range of weeks;
+#   diffs is the difference between the two PMFs in percentage points.
+# Figure 3.2 shows the result as a bar chart.
+
+# For now we should hold this conclusion only tentatively.
+# We used the same dataset to identify an apparent difference and
+#   then chose a visualization that makes the difference apparent.
+# We can’t be sure this effect is real; it might be due to random variation.
+# We’ll address this concern later.
+
+
+# endregion 3.3  Other visualizations
+
+# region 3.4  The class size paradox
+def BiasPmf(pmf, label):
+    new_pmf = pmf.Copy(label=label)
+
+    for x, p in pmf.Items():
+        new_pmf.Mult(x, x)
+
+    new_pmf.Normalize()
+    return new_pmf
+
+
+def UnbiasPmf(pmf, label):
+    new_pmf = pmf.Copy(label=label)
+
+    for x, p in pmf.Items():
+        new_pmf.Mult(x, 1.0/x)
+
+    new_pmf.Normalize()
+    return new_pmf
+
+
+d = {7: 8, 12: 8, 17: 14, 22: 4,
+     27: 6, 32: 12, 37: 8, 42: 3, 47: 2}
+
+pmf = thinkstats2.Pmf(d, label='actual')
+print('mean', pmf.Mean())
+
+biased_pmf = BiasPmf(pmf, label="observed")
+print('mean', biased_pmf.Mean())
+
+unbiased_pmf = UnbiasPmf(biased_pmf, label="original")
+print("mean", unbiased_pmf.Mean())
+
+thinkplot.PrePlot(2)
+thinkplot.Pmfs([pmf, biased_pmf])
+thinkplot.Show(xlabel="class size", ylabel="PMF")
+
+
+# endregion 3.4  The class size paradox
+
+# region 3.5  DataFrame indexing
+# In Section 1.4 we read a pandas DataFrame and used it to select and modify data columns.
+# Now let’s look at row selection.
+# To start, I create a NumPy array of random numbers and use it to initialize a DataFrame:
+import numpy as np
+import pandas
+array = np.random.randn(4, 2)
+df = pandas.DataFrame(array)
+
+# By default, the rows and columns are numbered starting at zero, but you can provide column names:
+columns = ["A", "B"]
+df = pandas.DataFrame(array, columns=columns)
+
+# You can also provide row names.
+#   The set of row names is called the index;
+#   the row names themselves are called labels.
+index = ["a", "b", "c", "d"]
+df = pandas.DataFrame(array, columns=columns, index=index)
+
+# As we saw in the previous chapter, simple indexing selects a column, returning a Series:
+df["A"]
+
+# To select a row by label, you can use the loc attribute, which returns a Series:
+df.loc["a"]
+
+# If you know the integer position of a row, rather than its label,
+#   you can use the iloc attribute, which also returns a Series.
+df.iloc[0]
+
+# loc can also take a list of labels; in that case, the result is a DataFrame.
+indices = ["a", "c"]
+df.loc[indices]
+
+# Finally, you can use a slice to select a range of rows by label:
+df.loc["a":"c"]
+
+# Or by integer position:
+df.iloc[0:2]
+
+# The result in either case is a DataFrame,
+#   but notice that the first result includes the end of the slice;
+#   the second doesn’t.
+
+# My advice:
+#   if your rows have labels that are not simple integers,
+#   use the labels consistently and avoid using integer positions.
+
+
+# endregion 3.5  DataFrame indexing
+
+# region 3.6  Exercises
+# Solutions to these exercises are in chap03soln.ipynb and chap03soln.py
+
+# region Exercise 1
+# Something like the class size paradox appears if you survey children and ask how many children are in their family.
+# Families with many children are more likely to appear in your sample,
+#   and families with no children have no chance to be in the sample.
+
+# Use the NSFG respondent variable NUMKDHH to construct the actual distribution for the number of children under 18 in the household.
+
+# Now compute the biased distribution we would see if we surveyed the children and asked them how many children under 18 (including themselves) are in their household.
+
+# Plot the actual and biased distributions, and compute their means.
+# As a starting place, you can use chap03ex.ipynb.
+
+# ============================================================================================================
+
+#   File - chap03ex.ipynb
+
+
+# endregion Exercise 1
+
+# region Exercise 2
+#
+# In Section 2.7 we computed the mean of a sample by adding up the elements and dividing by n.
+# If you are given a PMF, you can still compute the mean, but the process is slightly different:
+# x_bar = ∑i pi * xi
+#   where
+#       the xi are the unique values in the PMF and
+#       pi=PMF(xi).
+
+# Similarly, you can compute variance like this:
+# S**2 = ∑i pi * (xi − x_bar)**2
+
+# Write functions called PmfMean and PmfVar that take a Pmf object and compute the mean and variance.
+# To test these methods, check that they are consistent with the methods Mean and Var provided by Pmf.
+
+# ============================================================================================================
+
+#   File - Pmf_Functions.py
+
+
+# endregion Exercise 2
+
+# region Exercise 3
+# I started with the question, “Are first babies more likely to be late?”
+# To address it, I computed the difference in means between groups of babies,
+#   but I ignored the possibility that there might be a difference between first babies and others for the same woman.
+
+# To address this version of the question,
+#   select respondents who have at least two babies and compute pairwise differences.
+# Does this formulation of the question yield a different result?
+
+# Hint: use nsfg.MakePregMap.
+
+# ============================================================================================================
+
+#   File - chap03ex.ipynb
+
+
+# endregion Exercise 3
+
+# region Exercise 4
+# In most foot races, everyone starts at the same time.
+# If you are a fast runner, you usually pass a lot of people at the beginning of the race,
+#   but after a few miles everyone around you is going at the same speed.
+
+# When I ran a long-distance (209 miles) relay race for the first time, I noticed an odd phenomenon:
+#   when I overtook another runner, I was usually much faster, and
+#   when another runner overtook me, he was usually much faster.
+
+# At first I thought that the distribution of speeds might be bimodal;
+#   that is, there were many slow runners and many fast runners, but few at my speed.
+
+# Then I realized that I was the victim of a bias similar to the effect of class size.
+# The race was unusual in two ways:
+#   it used a staggered start, so teams started at different times;
+#   also, many teams included runners at different levels of ability.
+
+# As a result, runners were spread out along the course with little relationship between speed and location.
+# When I joined the race, the runners near me were (pretty much) a random sample of the runners in the race.
+
+# So where does the bias come from?
+# During my time on the course, the chance of overtaking a runner, or being overtaken,
+#   is proportional to the difference in our speeds.
+# I am more likely to catch a slow runner, and more likely to be caught by a fast runner.
+# But runners at the same speed are unlikely to see each other.
+
+# Write a function called ObservedPmf that takes
+#   a Pmf representing the actual distribution of runners’ speeds,
+#   and the speed of a running observer,
+#   and returns a new Pmf representing the distribution of runners’ speeds as seen by the observer.
+
+# To test your function, you can use relay.py,
+#   which reads the results from the James Joyce Ramble 10K in Dedham MA and converts the pace of each runner to mph.
+
+# Compute the distribution of speeds you would observe if you ran a relay race at 7.5 mph with this group of runners.
+# A solution to this exercise is in relay_soln.py.
+
+# ============================================================================================================
+
+#   File - chap03ex.ipynb
+
+
+# endregion Exercise 4
+
+
+# endregion 3.6  Exercises
+
+# region 3.7  Glossary
+# Probability mass function (PMF):
+#   a representation of a distribution as a function that maps from values to probabilities.
+# probability:
+#   A frequency expressed as a fraction of the sample size.
+# normalization:
+#   The process of dividing a frequency by a sample size to get a probability.
+# index:
+#   In a pandas DataFrame, the index is a special column that contains the row labels.
+
+
+# endregion 3.7  Glossary
 
 # endregion Chapter 3  Probability mass functions
+
+# region Chapter 4  Cumulative distribution functions
+
+
+# endregion Chapter 4  Cumulative distribution functions
