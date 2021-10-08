@@ -1425,10 +1425,11 @@ def PercentileToPosition(percentile, field_size):
 
 #   File - chap04ex.ipynb
 
+# endregion Exercise 2
 
 # endregion 4.9  Exercises
 
-# 4.10  Glossary
+# region 4.10  Glossary
 #     percentile rank:
 #       The percentage of values in a distribution that are less than or equal to a given value.
 #     percentile:
@@ -1451,6 +1452,32 @@ def PercentileToPosition(percentile, field_size):
 #       “With replacement” means that the same value can be chosen more than once;
 #       “without replacement” means that once a value is chosen, it is removed from the population.
 
+
+# endregion 4.10  Glossary
+
+# region 4.10  Glossary
+#     percentile rank:
+#       The percentage of values in a distribution that are less than or equal to a given value.
+#     percentile:
+#       The value associated with a given percentile rank.
+#     cumulative distribution function (CDF):
+#       A function that maps from values to their cumulative probabilities.
+#       CDF(x) is the fraction of the sample less than or equal to x.
+#     inverse CDF:
+#       A function that maps from a cumulative probability, p, to the corresponding value.
+#     median:
+#       The 50th percentile, often used as a measure of central tendency.
+#     interquartile range:
+#       The difference between the 75th and 25th percentiles, used as a measure of spread.
+#     quantile:
+#       A sequence of values that correspond to equally spaced percentile ranks;
+#       for example, the quartiles of a distribution are the 25th, 50th and 75th percentiles.
+#     replacement:
+#       A property of a sampling process.
+#       “With replacement” means that the same value can be chosen more than once;
+#       “without replacement” means that once a value is chosen, it is removed from the population.
+
+
 # endregion 4.10  Glossary
 
 
@@ -1458,5 +1485,389 @@ def PercentileToPosition(percentile, field_size):
 
 # region Chapter 5  Modeling distributions
 
+# region 5.1  The exponential distribution
+# The CDF of the exponential distribution is
+#   CDF(x) = 1 − e**(−λ *  x)
+# The parameter, λ, determines the shape of the distribution.
+
+# In the real world, exponential distributions come up when
+#   we look at a series of events and measure the times between events, called interarrival times.
+# If the events are equally likely to occur at any time,
+#   the distribution of interarrival times tends to look like an exponential distribution.
+
+df = ReadBabyBoom()
+diffs = df.minutes.diff()
+cdf = thinkstats2.Cdf(diffs, label="actual")
+
+thinkplot.Cdf(cdf)
+thinkplot.Show(xlabel='minutes', ylabel='CDF')
+
+# It seems to have the general shape of an exponential distribution, but how can we tell?
+
+# One way is to plot the complementary CDF,
+#   which is 1 − CDF(x), on a log-y scale.
+# For data from an exponential distribution, the result is a straight line.
+
+# If you plot the complementary CDF (CCDF) of a dataset that you think is exponential, you expect to see a function like:
+#   y ≈ e−λ x (i.e. 1 - CDF(x))
+
+# Taking the log of both sides yields:
+#   logy ≈ −λ x
+
+# So on a log-y scale the CCDF is a straight line with slope −λ.
+# Here’s how we can generate a plot like that:
+thinkplot.Cdf(cdf, complement=True)
+thinkplot.Show(xlabel='minutes', ylabel='CCDF', yscale="log")
+
+# It is not exactly straight, which indicates that the exponential distribution is not a perfect model for this data.
+# Most likely the underlying assumption—that a birth is equally likely at any time of day—is not exactly true.
+# Nevertheless, it might be reasonable to model this dataset with an exponential distribution.
+# With that simplification, we can summarize the distribution with a single parameter.
+
+# The parameter, λ, can be interpreted as a rate;
+#   that is, the number of events that occur, on average, in a unit of time.
+
+# The mean of an exponential distribution is 1/λ.
+
+
+# endregion 5.1  The exponential distribution
+
+# region 5.2  The normal distribution
+# The normal distribution, also called Gaussian, is commonly used because it describes many phenomena, at least approximately.
+# It turns out that there is a good reason for its ubiquity, which we will get to in Section 14.4.
+
+# The normal distribution is characterized by two parameters:
+#   the mean, µ, and
+#   standard deviation σ.
+# The normal distribution with µ=0 and σ=1 is called the standard normal distribution.
+# Its CDF is defined by an integral that does not have a closed form solution,
+#   but there are algorithms that evaluate it efficiently.
+# One of them is provided by SciPy:
+#   scipy.stats.norm is an object that represents a normal distribution;
+#   it provides a method, cdf, that evaluates the standard normal CDF:
+import scipy.stats
+scipy.stats.norm.cdf(0)
+
+# This result is correct:
+#   the median of the standard normal distribution is 0 (the same as the mean), and
+#   half of the values fall below the median, so CDF(0) is 0.5.
+
+# norm.cdf takes optional parameters:
+#   loc, which specifies the mean, and
+#   scale, which specifies the standard deviation.
+
+# thinkstats2 makes this function a little easier to use by providing EvalNormalCdf,
+#   which takes parameters mu and sigma and evaluates the CDF at x:
+def EvalNormalCdf(x, mu=0, sigma=1):
+    return scipy.stats.norm.cdf(x, loc=mu, scale=sigma)
+
+# The sigmoid shape of these curves is a recognizable characteristic of a normal distribution.
+
+
+# endregion 5.2  The normal distribution
+
+# region 5.3  Normal probability plot
+# For the exponential distribution, and a few others,
+#   there are simple transformations we can use to test whether an analytic distribution is a good model for a dataset.
+
+# For the normal distribution there is no such transformation,
+#   but there is an alternative called a normal probability plot.
+# There are two ways to generate a normal probability plot: the hard way and the easy way.
+# If you are interested in the hard way, you can read about it at https://en.wikipedia.org/wiki/Normal_probability_plot.
+# Here’s the easy way:
+#     Sort the values in the sample.
+#     From a standard normal distribution (µ=0 and σ=1), generate a random sample with the same size as the sample, and sort it.
+#     Plot the sorted values from the sample versus the random values.
+
+# If the distribution of the sample is approximately normal, the result is a straight line with intercept mu and slope sigma.
+
+# thinkstats2 provides NormalProbability, which takes a sample and returns two NumPy arrays:
+#   ys contains the sorted values from sample;
+#   xs contains the random values from the standard normal distribution.
+xs, ys = thinkstats2.NormalProbability(sample)
+
+# Now let’s try it with real data.
+# Here’s code to generate a normal probability plot for the birth weight data from the previous section.
+# It plots a gray line that represents the model and a blue line that represents the data.
+def MakeNormalPlot(weights):
+    mean = weights.mean()
+    std = weights.std()
+
+    xs = [-4, 4]
+    fxs, fys = thinkstats2.FitLine(xs, inter=mean, slope=std)
+    thinkplot.Plot(fxs, fys, color="gray", label="model")
+
+    xs, ys = thinkstats2.NormalProbability(weights)
+    thinkplot.Plot(xs, ys, label="birth weights")
+
+# weights is a pandas Series of birth weights;
+# mean and std are the mean and standard deviation.
+
+# FitLine takes a sequence of xs, an intercept, and a slope;
+# it returns xs and ys that represent a line with the given parameters, evaluated at the values in xs.
+
+# NormalProbability returns xs and ys that contain values from the standard normal distribution and values from weights.
+# If the distribution of weights is normal, the data should match the model.
+
+
+# endregion 5.3  Normal probability plot
+
+# region 5.4  The lognormal distribution
+# If the logarithms of a set of values have a normal distribution, the values have a lognormal distribution.
+# The CDF of the lognormal distribution is the same as the CDF of the normal distribution, with logx substituted for x.
+#   CDFlognormal(x) = CDFnormal(logx)
+
+# The parameters of the lognormal distribution are usually denoted µ and σ.
+# But remember that these parameters are not the mean and standard deviation;
+#   the mean of a lognormal distribution is exp(µ + σ**2/2) and
+#   the standard deviation is ugly (see http://wikipedia.org/wiki/Log-normal_distribution).
+
+# If a sample is approximately lognormal and you plot its CDF on a log-x scale,
+#   it will have the characteristic shape of a normal distribution.
+# To test how well the sample fits a lognormal model,
+#   you can make a normal probability plot using the log of the values in the sample.
+
+# The repository for this book contains
+#   CDBRFS08.ASC.gz, a fixed-width ASCII file that contains data from the BRFSS, and
+#   brfss.py, which reads the file and analyzes the data.
+
+
+# endregion 5.4  The lognormal distribution
+
+# region 5.5  The Pareto distribution
+# The Pareto distribution is named after the economist Vilfredo Pareto,
+#   who used it to describe the distribution of wealth
+#   (see http://wikipedia.org/wiki/Pareto_distribution).
+# Since then, it has been used to describe phenomena in the natural and social sciences including
+#   sizes of cities and towns, sand particles and meteorites, forest fires and earthquakes.
+
+# The CDF of the Pareto distribution is:
+# CDF(x) = 1 − 	( x / xm )**−α
+#   The parameters xm and α determine the location and shape of the distribution.
+#   xm is the minimum possible value.
+
+# There is a simple visual test that indicates whether an empirical distribution fits a Pareto distribution:
+#   on a log-log scale, the CCDF looks like a straight line.
+# Let’s see why that works.
+
+# If you plot the CCDF of a sample from a Pareto distribution on a linear scale, you expect to see a function like:
+#   y ≈ 1 − ( x / xm )**−α
+# Taking the log of both sides yields:
+#   logy ≈ −α (logx − logxm)
+
+# So if you plot logy versus logx, it should look like a straight line with slope −α and intercept α logxm.
+
+# As an example, let’s look at the sizes of cities and towns.
+# The U.S. Census Bureau publishes the population of every incorporated city and town in the United States.
+# I downloaded their data from http://www.census.gov/popest/data/cities/totals/2012/SUB-EST2012-3.html;
+#   it is in the repository for this book in a file named PEP_2012_PEPANNRES_with_ann.csv.
+# The repository also contains populations.py, which reads the file and plots the distribution of populations.
+
+# the CCDF of populations on a log-log scale.
+#   The largest 1% of cities and towns, below 10−2, fall along a straight line.
+#   So we could conclude, as some researchers have, that the tail of this distribution fits a Pareto model.
+
+# On the other hand, a lognormal distribution also models the data well.
+#   the CDF of populations and a lognormal model (left), and a normal probability plot (right).
+#   Both plots show good agreement between the data and the model.
+
+# Neither model is perfect.
+#   The Pareto model only applies to the largest 1% of cities, but it is a better fit for that part of the distribution.
+#   The lognormal model is a better fit for the other 99%.
+# Which model is appropriate depends on which part of the distribution is relevant.
+
+
+# endregion 5.5  The Pareto distribution
+
+# region 5.6  Generating random numbers
+# Analytic CDFs can be used to generate random numbers with a given distribution function, p = CDF(x).
+# If there is an efficient way to compute the inverse CDF,
+#   we can generate random values with the appropriate distribution by
+#       choosing p from a uniform distribution between 0 and 1, then
+#       choosing x = ICDF(p).
+
+# For example, the CDF of the exponential distribution is
+#   p = 1 − e**−(λ * x)
+
+# Solving for x yields:
+#   x = −log(1 − p) / λ
+
+# So in Python we can write
+def expovariate(lam):
+    p = random.random()
+    x = -math.log(1-p) / lam
+    return x
+
+# expovariate takes lam and returns a random value chosen from the exponential distribution with parameter lam.
+
+# Two notes about this implementation:
+#   I called the parameter lam because lambda is a Python keyword.
+#   Also, since log0 is undefined, we have to be a little careful.
+#       The implementation of random.random can return 0 but not 1,
+#       so 1 − p can be 1 but not 0,
+#       so log(1-p) is always defined.
+
+
+# endregion 5.6  Generating random numbers
+
+# region 5.7  Why model?
+# Like all models, analytic distributions are abstractions, which means they leave out details that are considered irrelevant.
+# example,
+#   an observed distribution might have measurement errors or quirks that are specific to the sample;
+#   analytic models smooth out these idiosyncrasies.
+
+# Analytic models are also a form of data compression.
+# When a model fits a dataset well, a small set of parameters can summarize a large amount of data.
+
+# It is sometimes surprising when data from a natural phenomenon fit an analytic distribution,
+#   but these observations can provide insight into physical systems.
+# Sometimes we can explain why an observed distribution has a particular form.
+# example,
+#   Pareto distributions are often the result of generative processes with positive feedback (so-called preferential attachment processes:
+#   see http://wikipedia.org/wiki/Preferential_attachment.).
+
+# Also, analytic distributions lend themselves to mathematical analysis, as we will see in Chapter 14.
+
+# But it is important to remember that all models are imperfect.
+# Data from the real world never fit an analytic distribution perfectly.
+# People sometimes talk as if data are generated by models;
+# example,
+#   they might say that the distribution of human heights is normal, or
+#   the distribution of income is lognormal.
+# Taken literally, these claims cannot be true;
+#   there are always differences between the real world and mathematical models.
+
+# Models are useful if they capture the relevant aspects of the real world and leave out unneeded details.
+# But what is “relevant” or “unneeded” depends on what you are planning to use the model for.
+
+
+# endregion 5.7  Why model?
+
+# region 5.8  Exercises
+# For the following exercises, you can start with chap05ex.ipynb.
+# My solution is in chap05soln.ipynb.
+
+# region Exercise 1
+#  In the BRFSS (see Section 5.4), the distribution of heights is roughly normal with parameters
+#  µ = 178 cm and σ = 7.7 cm for men, and µ = 163 cm and σ = 7.3 cm for women.
+
+# In order to join Blue Man Group, you have to be male between 5’10” and 6’1” (see http://bluemancasting.com).
+# What percentage of the U.S. male population is in this range? Hint: use scipy.stats.norm.cdf.
+
+
+# ============================================================================================================
+
+#   File - chap05ex.ipynb
+
+# endregion Exercise 1
+
+# region Exercise 2
+# To get a feel for the Pareto distribution, let’s see how different the world would be if the distribution of human height were Pareto. With the parameters xm = 1 m and α = 1.7, we get a distribution with a reasonable minimum, 1 m, and median, 1.5 m.
+#
+# Plot this distribution. What is the mean human height in Pareto world? What fraction of the population is shorter than the mean? If there are 7 billion people in Pareto world, how many do we expect to be taller than 1 km? How tall do we expect the tallest person to be?
+
+# ============================================================================================================
+
+#   File - chap05ex.ipynb
+
+
+# endregion Exercise 2
+
+# region Exercise 3
+# The Weibull distribution is a generalization of the exponential distribution that comes up in failure analysis
+# (see http://wikipedia.org/wiki/Weibull_distribution).
+# Its CDF is
+#   CDF(x) = 1 − e−(x / λ)k
+
+# Can you find a transformation that makes a Weibull distribution look like a straight line?
+# What do the slope and intercept of the line indicate?
+
+# Use random.weibullvariate to generate a sample from a Weibull distribution and use it to test your transformation.
+
+# ============================================================================================================
+
+#   File - chap05ex.ipynb
+
+
+# endregion Exercise 3
+
+# region Exercise 4
+# For small values of n, we don’t expect an empirical distribution to fit an analytic distribution exactly. One way to evaluate the quality of fit is to generate a sample from an analytic distribution and see how well it matches the data.
+#
+# For example, in Section 5.1 we plotted the distribution of time between births and saw that it is approximately exponential. But the distribution is based on only 44 data points. To see whether the data might have come from an exponential distribution, generate 44 values from an exponential distribution with the same mean as the data, about 33 minutes between births.
+#
+# Plot the distribution of the random values and compare it to the actual distribution. You can use random.expovariate to generate the values.
+
+
+
+# ============================================================================================================
+
+#   File - chap05ex.ipynb
+
+# endregion Exercise 4
+
+# region Exercise 5
+# In the repository for this book, you’ll find a set of data files called mystery0.dat, mystery1.dat, and so on.
+# Each contains a sequence of random numbers generated from an analytic distribution.
+
+# You will also find test_models.py, a script that reads data from a file and plots the CDF under a variety of transforms.
+# You can run it like this:
+$ python test_models.py mystery0.dat
+
+# Based on these plots, you should be able to infer what kind of distribution generated each file.
+# If you are stumped, you can look in mystery.py, which contains the code that generated the files.
+
+
+# ============================================================================================================
+
+#   File - chap05ex.ipynb
+
+
+# endregion Exercise 5
+
+# region Exercise 6
+# The distributions of wealth and income are sometimes modeled using lognormal and Pareto distributions.
+# To see which is better, let’s look at some data.
+
+# The Current Population Survey (CPS) is a joint effort of the Bureau of Labor Statistics and
+#   the Census Bureau to study income and related variables.
+# Data collected in 2013 is available from http://www.census.gov/hhes/www/cpstables/032013/hhinc/toc.htm.
+# I downloaded hinc06.xls, which is an Excel spreadsheet with information about household income,
+#   and converted it to hinc06.csv, a CSV file you will find in the repository for this book.
+# You will also find hinc.py, which reads this file.
+
+# Extract the distribution of incomes from this dataset.
+# Are any of the analytic distributions in this chapter a good model of the data? A solution to this exercise is in hinc_soln.py.
+
+
+# ============================================================================================================
+
+#   File - chap05ex.ipynb
+
+
+# endregion 5.8  Exercises
+
+
+# endregion 5.8  Exercises
+
+# region 5.9  Glossary
+#     empirical distribution:
+#       The distribution of values in a sample.
+#     analytic distribution:
+#       A distribution whose CDF is an analytic function.
+#     model:
+#       A useful simplification.
+#       Analytic distributions are often good models of more complex empirical distributions.
+#     interarrival time:
+#       The elapsed time between two events.
+#     complementary CDF:
+#       A function that maps from a value, x, to the fraction of values that exceed x, which is 1 − CDF(x).
+#     standard normal distribution:
+#       The normal distribution with mean 0 and standard deviation 1.
+#     normal probability plot:
+#       A plot of the values in a sample versus random values from a standard normal distribution.
+
+
+# endregion 5.9  Glossary
 
 # endregion Chapter 5  Modeling distributions
